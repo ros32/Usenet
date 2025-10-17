@@ -69,7 +69,10 @@ namespace Usenet.Nntp.Parsers
                 return new NntpArticleResponse(code, message, true, new NntpArticle(number, messageId, null, null, null));
             }
 
-            using (IEnumerator<string> enumerator = dataBlock.GetEnumerator())
+            // Materialize lines to avoid returning a body tied to a disposed enumerator
+            var lines = dataBlock?.ToList();
+
+            using (IEnumerator<string> enumerator = (lines ?? Enumerable.Empty<string>()).GetEnumerator())
             {
                 // get headers if requested
                 MultiValueDictionary<string, string> headers = (requestType & ArticleRequestType.Head) == ArticleRequestType.Head
@@ -83,15 +86,8 @@ namespace Usenet.Nntp.Parsers
 
                 // get body if requested
                 IEnumerable<string> bodyLines = (requestType & ArticleRequestType.Body) == ArticleRequestType.Body
-                    ? EnumerateBodyLines(enumerator)
-                    : new string[0];
-
-                if (dataBlock is ICollection<string>)
-                {
-                    // no need to keep enumerator if input is not a stream
-                    // memoize the body lines
-                    bodyLines = bodyLines.ToList();
-                }
+                    ? EnumerateBodyLines(enumerator).ToList()
+                    : new List<string>(0);
 
                 return new NntpArticleResponse(
                     code, message, true,
