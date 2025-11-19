@@ -29,6 +29,18 @@ namespace Usenet.Nntp
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="NntpStreamReader"/> class for the specified stream,
+        /// with the specified character encoding and internal buffer size.
+        /// </summary>
+        /// <param name="stream">The stream to be read.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <param name="bufferSize">The internal buffer size to use.</param>
+        public NntpStreamReader(Stream stream, Encoding encoding, int bufferSize)
+            : base(stream, encoding, detectEncodingFromByteOrderMarks: false, bufferSize: bufferSize, leaveOpen: false)
+        {
+        }
+
+        /// <summary>
         /// Reads a line of characters from the current stream and returns the data as a string.
         /// Dot-stuffing will be undone and the terminating line (".") will result in a null value
         /// indicating end of input.
