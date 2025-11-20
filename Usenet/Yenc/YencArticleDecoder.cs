@@ -48,7 +48,10 @@ namespace Usenet.Yenc
                 YencFooter footer = null;
 
                 // create buffer for part or entire file if single part
-                var decodedBytes = new byte[header.PartSize];
+                // Add 10% safety margin to account for potential header inaccuracies
+                // or encoding variations when using large read buffers
+                var bufferSize = (int)(header.PartSize * 1.1);
+                var decodedBytes = new byte[bufferSize];
                 var decodedBytesIndex = 0;
 
                 while (enumerator.MoveNext())

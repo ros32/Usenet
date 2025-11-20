@@ -1,4 +1,6 @@
-﻿namespace Usenet.Yenc
+﻿using System;
+
+namespace Usenet.Yenc
 {
     /// <summary>
     /// yEnc line decoder.
@@ -21,6 +23,16 @@
                     isEscaped = true;
                     continue;
                 }
+                
+                // Bounds check to prevent buffer overflow
+                if (decodedOffset >= decodedBytes.Length)
+                {
+                    throw new InvalidOperationException(
+                        $"YEnc decoder buffer overflow: attempting to write at offset {decodedOffset} " +
+                        $"but buffer size is {decodedBytes.Length}. This indicates the yEnc header PartSize " +
+                        $"is incorrect or the encoded data is corrupted.");
+                }
+                
                 if (isEscaped)
                 {
                     isEscaped = false;

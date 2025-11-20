@@ -20,8 +20,6 @@ namespace Usenet.Nntp
     /// does not support compressed multi-line results.</remarks>
     public class NntpConnection : INntpConnection
     {
-        private const int DefaultSocketBufferSize = 64 * 1024;
-        private const int DefaultStreamBufferSize = 16 * 1024;
 
         private readonly ILogger log = Logger.Create<NntpConnection>();
         private readonly TcpClient client;
@@ -35,8 +33,6 @@ namespace Usenet.Nntp
         {
             client = new TcpClient
             {
-                ReceiveBufferSize = DefaultSocketBufferSize,
-                SendBufferSize = DefaultSocketBufferSize,
                 NoDelay = true
             };
         }
@@ -50,8 +46,8 @@ namespace Usenet.Nntp
             log.LogInformation("Connecting: {hostname} {port} (Use SSl = {useSsl})", hostname, port, useSsl);
             await client.ConnectAsync(hostname, port);
             Stream = await GetStreamAsync(hostname, useSsl);
-            writer = new StreamWriter(Stream, UsenetEncoding.Default, DefaultStreamBufferSize) { AutoFlush = true };
-            reader = new NntpStreamReader(Stream, UsenetEncoding.Default, DefaultStreamBufferSize);
+            writer = new StreamWriter(Stream, UsenetEncoding.Default) { AutoFlush = true };
+            reader = new NntpStreamReader(Stream, UsenetEncoding.Default);
             return GetResponse(parser);
         }
 
